@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Fee Studio - Finale V11</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .qty-input::-webkit-inner-spin-button, 
+        .qty-input::-webkit-outer-spin-button { opacity: 1; height: 30px; }
+
+        .service-card { transition: all 0.2s ease; }
+        .service-card.active {
+            border-color: #3b82f6; background-color: #eff6ff;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .logo-container img { max-height: 100%; width: auto; }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <div class="bg-white border-b border-gray-200 p-4 z-20">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                
+                <div class="h-12 w-12 flex items-center justify-center logo-container">
+                    <img src="./logo.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center text-[8px] font-bold text-gray-500 border-2 border-white shadow hidden">LOGO</div>
+                </div>
+
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">STUDIO RIABILITARE INSIEME</h1>
+                    <p class="text-xs text-gray-500 font-medium" id="header-therapist">Inserimento prestazioni</p>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="text-sm font-medium text-gray-400 hover:text-red-500 transition">
+                &times; Esci / Ricomincia
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto min-h-full flex flex-col">
+            
+            <div id="step-upload" class="flex-1 flex flex-col items-center justify-center fade-in">
+                <div class="bg-white p-10 rounded-2xl shadow-xl text-center max-w-lg w-full border border-gray-100">
+                    
+                    <div class="mb-6 bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Nuovo Report Mensile</h2>
+
+                    <div class="mb-8 text-left">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">1. Seleziona il Mese di Riferimento</label>
+                        <input type="month" id="month-input" 
+                            class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition cursor-pointer">
+                    </div>
+
+                    <div class="text-left mb-8">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">2. Carica Configurazione Excel</label>
+                        <label class="block w-full cursor-pointer group">
+                            <span class="block w-full py-4 px-6 bg-blue-600 group-hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition transform active:scale-[0.98] text-center">
+                                Seleziona File Excel
+                            </span>
+                            <input type="file" id="upload-input" accept=".xlsx, .xls, .csv" class="hidden"/>
+                        </label>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100 text-left">
+                        
+                        <p class="text-xs text-gray-500 mb-4 leading-relaxed whitespace-pre-line border-l-4 border-blue-200 pl-3">
+                            <span class="font-bold text-blue-600">SCARICA IL TEMPLATE.</span> 
+                            Inserisci il tuo nome e il nome dei pazienti. 
+                            Per ciascun paziente, sostituisci NA con il valore di ciascuna prestazione. 
+                            Puoi aggiungere tutte le prestazioni che vuoi, ricorda di mettere tra le parentesi la percentuale. 
+                            Salva il file e caricalo qui sopra per iniziare.
+                        </p>
+
+                        <button onclick="downloadTemplate()" class="flex items-center justify-center gap-2 w-full sm:w-auto mx-auto text-sm text-blue-600 font-bold hover:text-blue-800 hover:bg-blue-50 px-6 py-3 rounded-lg border border-blue-200 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Scarica Modello Excel
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="step-wizard" class="hidden flex-col h-full fade-in">
+                <div class="mb-6 bg-white rounded-full h-4 shadow-inner overflow-hidden border border-gray-200 relative">
+                    <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-blue-400 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-600 uppercase tracking-widest" id="progress-text">Paziente 1 di X</div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 flex-1 flex flex-col overflow-hidden relative">
+                    <div class="bg-gray-50 border-b border-gray-100 p-6 flex items-center justify-between sticky top-0 z-10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-md">
+                                <span id="patient-initial">A</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800" id="patient-name">Nome Paziente</h2>
+                                <p class="text-sm text-gray-500">Inserisci il numero di prestazioni</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
+                        <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <div class="bg-white border-t border-gray-200 p-4 flex justify-between items-center shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-10">
+                        <button id="btn-prev" onclick="prevPatient()" class="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition disabled:opacity-30">&larr; Indietro</button>
+                        <button id="btn-next" onclick="nextPatient()" class="px-8 py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-lg shadow-lg transition transform active:scale-95 flex items-center gap-2">Prossimo Paziente &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-summary" class="hidden flex-col h-full fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <span class="bg-green-100 text-green-700 p-2 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                    Riepilogo Finale <span id="summary-month-display" class="ml-2 text-gray-400 font-normal text-lg"></span>
+                </h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+                    
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                            
+                            <div class="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                                <label class="block text-xs font-bold text-yellow-800 uppercase mb-2 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    Costo Cucina / Extra (€)
+                                </label>
+                                <input type="number" id="kitchen-input" min="0" step="0.01" value="0" 
+                                    class="w-full text-right text-xl font-bold text-gray-800 p-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                                    oninput="updateGrandTotal()" placeholder="0.00">
+                                <p class="text-[10px] text-yellow-600 mt-1 text-right">Si somma al totale finale</p>
+                            </div>
+
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Totale da Versare</h3>
+                            <div class="text-4xl font-extrabold text-blue-600" id="summary-grand-total">€ 0,00</div>
+                            
+                            <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Imponibile Fee:</span>
+                                    <span class="font-bold text-gray-700" id="summary-total-net">€ 0,00</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">IVA Fee (22%):</span>
+                                    <span class="font-bold text-orange-600" id="summary-total-iva">€ 0,00</span>
+                                </div>
+                                <div class="flex justify-between text-sm pt-2 border-t border-dashed border-gray-200">
+                                    <span class="text-gray-500">Fee Totale (No Cucina):</span>
+                                    <span class="font-bold text-blue-600" id="summary-fee-only">€ 0,00</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <div class="flex justify-between text-xs text-gray-400">
+                                    <span>Fatturato Tot. Pazienti:</span>
+                                    <span id="summary-total-billed">€ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 text-sm text-blue-800">
+                            <button onclick="downloadExcel()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Scarica Report Excel
+                            </button>
+                            <button onclick="backToWizard()" class="w-full mt-3 py-2 text-blue-600 hover:bg-blue-100 font-bold rounded-xl transition">
+                                Torna alle Modifiche
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase tracking-wide flex justify-between">
+                            <span>Dettaglio Pazienti</span>
+                            <span>Totale</span>
+                        </div>
+                        <div class="overflow-y-auto flex-1 p-2" id="summary-list"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- STATE ---
+        let groupedData = {}; 
+        let patientList = []; 
+        let currentIndex = 0; 
+        let therapistName = "";
+        let selectedMonth = ""; 
+        
+        let calculatedNet = 0;
+        let calculatedIva = 0;
+        let calculatedFeeTotal = 0;
+        let calculatedBilled = 0;
+
+        // --- TEMPLATE DOWNLOAD ---
+        function downloadTemplate() {
+            const headers = [
+                "NOME TERAPISTA", 
+                "PRESTAZIONE (25%)", 
+                "DOMICILIARE (15%)", 
+                "PRESTAZIONE + (25%)", 
+                "DOMICILIARE + (15%)", 
+                "PRESTAZIONE ECC (10%)", 
+                "PRESTAZIONE ECC + (10%)", 
+                "RIDUZIONE (20%)", 
+                "RIDUZIONE + (20%)", 
+                "VALUTAZIONE (25%)", 
+                "VALUTAZIONE DOM (15%)"
+            ];
+            
+            // Dati con "NA" come richiesto
+            const rows = [
+                headers,
+                ["PAZIENTE 1", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"],
+                ["PAZIENTE 2", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"],
+                ["PAZIENTE 3", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"]
+            ];
+            
+            const wsData = XLSX.utils.aoa_to_sheet(rows);
+
+            // Larghezza Colonne per leggibilità
+            wsData['!cols'] = [
+                {wch: 25}, // Nome
+                {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, // Prestazioni
+                {wch: 25}, {wch: 25}, {wch: 20}, {wch: 20},
+                {wch: 20}, {wch: 25}
+            ];
+
+            // Foglio 2: Istruzioni
+            const instructions = [
+                ["ISTRUZIONI PER LA COMPILAZIONE DEL FILE"],
+                [""],
+                ["1. INTESTAZIONI"],
+                ["   - Cella A1: Inserisci il Nome e Cognome del Terapista."],
+                ["   - Dalla cella B1 in poi: Ci sono le prestazioni preimpostate."],
+                [""],
+                ["2. COMPILAZIONE PAZIENTI"],
+                ["   - Colonna A (da riga 2): Inserisci i nomi dei pazienti."],
+                ["   - Celle Interne: Inserisci il PREZZO della singola prestazione per quel paziente."],
+                [""],
+                ["3. PRESTAZIONI NON PERTINENTI (NA)"],
+                ["   - Se un paziente non svolge un certo tipo di prestazione, lascia scritto 'NA' nella cella."],
+                ["   - Il sistema ignorerà queste celle e non te le mostrerà."],
+                [""],
+                ["4. LOGICA IVA"],
+                ["   - Le prestazioni con simbolo '+' sono ESENTI IVA nello storno allo studio."],
+                ["   - Le prestazioni SENZA '+' includeranno automaticamente il calcolo dell'IVA del 22%."],
+            ];
+            const wsInstr = XLSX.utils.aoa_to_sheet(instructions);
+            wsInstr['!cols'] = [{wch: 100}];
+            
+            // Creazione Workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsData, "Configurazione");
+            XLSX.utils.book_append_sheet(wb, wsInstr, "ISTRUZIONI");
+            
+            XLSX.writeFile(wb, "Template_Studio_Vuoto.xlsx");
+        }
+
+        // --- UPLOAD ---
+        document.getElementById('upload-input').addEventListener('change', function(e) {
+            const monthInput = document.getElementById('month-input');
+            if (!monthInput.value) {
+                alert("ATTENZIONE: Seleziona il mese di riferimento prima di caricare il file.");
+                this.value = ''; 
+                return;
+            }
+            selectedMonth = monthInput.value;
+
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                if (!jsonData || jsonData.length < 2) return alert("File vuoto o non valido.");
+                parseData(jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function parseData(rows) {
+            const headers = rows[0];
+            therapistName = headers[0] || "Terapista";
+            document.getElementById('header-therapist').textContent = therapistName;
+            document.getElementById('summary-month-display').textContent = `(${selectedMonth})`;
+
+            const serviceMap = {};
+            for (let i = 1; i < headers.length; i++) {
+                const h = headers[i];
+                if (!h) continue;
+                const match = h.match(/^(.*?)\s*\((\d+)[%]?\)\s*$/);
+                serviceMap[i] = match ? { name: match[1].trim(), fee: parseFloat(match[2]) } : { name: h, fee: 0 };
+            }
+
+            groupedData = {};
+            patientList = [];
+
+            for (let r = 1; r < rows.length; r++) {
+                const row = rows[r];
+                const pName = row[0];
+                if (!pName) continue;
+
+                const services = [];
+                for (let c = 1; c < row.length; c++) {
+                    if (!serviceMap[c]) continue;
+                    const val = row[c];
+                    const strVal = String(val).trim().toUpperCase();
+                    // Controllo NA
+                    if (strVal === "NA" || strVal === "N/A" || strVal === "") continue;
+
+                    const price = parseFloat(val);
+                    if (!isNaN(price)) {
+                        services.push({
+                            serviceName: serviceMap[c].name,
+                            feePercent: serviceMap[c].fee,
+                            price: price,
+                            qty: 0
+                        });
+                    }
+                }
+
+                if (services.length > 0) {
+                    groupedData[pName] = services;
+                    patientList.push(pName);
+                }
+            }
+
+            if (patientList.length === 0) return alert("Nessun dato valido trovato (Verifica di aver compilato il file Excel correttamente).");
+            currentIndex = 0;
+            switchStep('wizard');
+            renderPatient();
+        }
+
+        // --- WIZARD ---
+        function renderPatient() {
+            const pName = patientList[currentIndex];
+            const services = groupedData[pName];
+            
+            document.getElementById('patient-name').textContent = pName;
+            document.getElementById('patient-initial').textContent = pName.charAt(0).toUpperCase();
+            document.getElementById('progress-text').textContent = `Paziente ${currentIndex + 1} di ${patientList.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / patientList.length) * 100}%`;
+
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = "";
+
+            services.forEach((item, idx) => {
+                const isActive = item.qty > 0 ? 'active' : '';
+                const willApplyIVA = !item.serviceName.includes('+');
+                const badgeColor = willApplyIVA ? 'text-orange-600 bg-orange-50' : 'text-blue-600 bg-blue-50';
+                const badgeText = willApplyIVA ? 'REGULAR' : 'PLUS';
+
+                const card = document.createElement('div');
+                card.className = `service-card bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md flex flex-col justify-between h-48 relative overflow-hidden group ${isActive}`;
+                card.id = `card-${idx}`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">Fee: ${item.feePercent}%</div>
+                        <div class="${badgeColor} text-[10px] font-bold px-2 py-1 rounded border border-current opacity-70">${badgeText}</div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 text-sm leading-tight mb-1">${item.serviceName}</h3>
+                        <p class="text-xs text-gray-400">Prezzo Unitario: €${item.price}</p>
+                    </div>
+                    <div class="mt-2">
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Numero Ore</label>
+                        <input type="number" min="0" class="qty-input w-full bg-gray-50 border border-gray-200 rounded-lg text-2xl font-bold text-gray-800 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-center"
+                            placeholder="0" value="${item.qty === 0 ? '' : item.qty}" onfocus="this.select()" oninput="updateQty('${pName}', ${idx}, this.value)">
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('btn-prev').disabled = currentIndex === 0;
+            const btnNext = document.getElementById('btn-next');
+            if (currentIndex === patientList.length - 1) {
+                btnNext.innerHTML = 'Vai al Riepilogo &rarr;';
+                btnNext.className = "px-8 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition transform active:scale-95 flex items-center gap-2";
+                btnNext.onclick = showSummary;
+            } else {
+                btnNext.innerHTML = 'Prossimo Paziente &rarr;';
+                btnNext.className = "px-8 py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-lg shadow-lg transition transform active:scale-95 flex items-center gap-2";
+                btnNext.onclick = nextPatient;
+            }
+        }
+
+        function updateQty(pName, idx, val) {
+            const qty = parseInt(val);
+            const validQty = isNaN(qty) ? 0 : qty;
+            groupedData[pName][idx].qty = validQty;
+            const card = document.getElementById(`card-${idx}`);
+            if (validQty > 0) card.classList.add('active');
+            else card.classList.remove('active');
+        }
+
+        function nextPatient() { if (currentIndex < patientList.length - 1) { currentIndex++; renderPatient(); } }
+        function prevPatient() { if (currentIndex > 0) { currentIndex--; renderPatient(); } }
+
+        // --- CALCULATIONS ---
+        function calculateFeeStructure(serviceItem, billedAmount) {
+            let netFee = billedAmount * (serviceItem.feePercent / 100);
+            let ivaAmount = 0;
+            if (!serviceItem.serviceName.includes('+')) {
+                ivaAmount = netFee * 0.22;
+            }
+            let totalFee = netFee + ivaAmount;
+            return { netFee, ivaAmount, totalFee, hasIva: ivaAmount > 0 };
+        }
+
+        // --- SUMMARY & KITCHEN ---
+        function showSummary() {
+            calculatedNet = 0;
+            calculatedIva = 0;
+            calculatedFeeTotal = 0;
+            calculatedBilled = 0;
+            
+            const summaryList = document.getElementById('summary-list');
+            summaryList.innerHTML = "";
+
+            patientList.forEach(pName => {
+                const services = groupedData[pName];
+                let pFee = 0;
+                let hasData = false;
+                let detailHtml = "";
+
+                services.forEach(s => {
+                    if (s.qty > 0) {
+                        const billed = s.qty * s.price;
+                        const calc = calculateFeeStructure(s, billed);
+                        
+                        pFee += calc.totalFee;
+                        calculatedNet += calc.netFee;
+                        calculatedIva += calc.ivaAmount;
+                        calculatedFeeTotal += calc.totalFee;
+                        calculatedBilled += billed;
+                        hasData = true;
+
+                        detailHtml += `
+                        <div class="grid grid-cols-12 gap-2 text-xs text-gray-500 py-1 border-l-2 border-gray-100 pl-4 mt-1">
+                            <div class="col-span-5 truncate font-medium">${s.qty}x ${s.serviceName}</div>
+                            <div class="col-span-2 text-right">Imp: €${calc.netFee.toFixed(2)}</div>
+                            <div class="col-span-2 text-right text-orange-500">${calc.hasIva ? '€'+calc.ivaAmount.toFixed(2) : '-'}</div>
+                            <div class="col-span-3 text-right font-bold text-gray-700">€${calc.totalFee.toFixed(2)}</div>
+                        </div>`;
+                    }
+                });
+
+                if (hasData) {
+                    const row = document.createElement('div');
+                    row.className = "p-4 border-b border-gray-100 hover:bg-gray-50 transition";
+                    row.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-gray-800 text-lg">${pName}</span>
+                            <span class="font-mono font-bold text-blue-600 text-lg">€${pFee.toFixed(2)}</span>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded">${detailHtml}</div>
+                    `;
+                    summaryList.appendChild(row);
+                }
+            });
+
+            if (calculatedFeeTotal === 0) summaryList.innerHTML = `<div class="p-8 text-center text-gray-400">Nessuna prestazione inserita.</div>`;
+
+            document.getElementById('summary-total-net').textContent = `€ ${calculatedNet.toFixed(2)}`;
+            document.getElementById('summary-total-iva').textContent = `€ ${calculatedIva.toFixed(2)}`;
+            document.getElementById('summary-fee-only').textContent = `€ ${calculatedFeeTotal.toFixed(2)}`;
+            document.getElementById('summary-total-billed').textContent = `€ ${calculatedBilled.toFixed(2)}`;
+
+            updateGrandTotal();
+            switchStep('summary');
+        }
+
+        function updateGrandTotal() {
+            const kitchenInput = document.getElementById('kitchen-input');
+            const kitchenVal = parseFloat(kitchenInput.value);
+            const validKitchen = isNaN(kitchenVal) ? 0 : kitchenVal;
+            const grandTotal = calculatedFeeTotal + validKitchen;
+            document.getElementById('summary-grand-total').textContent = `€ ${grandTotal.toFixed(2)}`;
+        }
+
+        function backToWizard() { switchStep('wizard'); renderPatient(); }
+
+        // --- EXPORT ---
+        function downloadExcel() {
+            const kitchenVal = parseFloat(document.getElementById('kitchen-input').value) || 0;
+            const grandTotal = calculatedFeeTotal + kitchenVal;
+
+            const rows = [];
+            rows.push(["MESE DI RIFERIMENTO:", selectedMonth, "", "", "", "", "", "", "", ""]);
+            rows.push([]);
+            
+            rows.push(["Terapista", "Paziente", "Prestazione", "N. Prestazioni", "Costo Unitario", "Fatturato Paziente", "Fee %", "Imponibile Fee", "IVA Fee (22%)", "Totale Parziale"]);
+
+            patientList.forEach(pName => {
+                groupedData[pName].forEach(s => {
+                    if (s.qty > 0) {
+                        const billed = s.qty * s.price;
+                        const calc = calculateFeeStructure(s, billed);
+                        rows.push([
+                            therapistName, pName, s.serviceName, s.qty, s.price, billed, s.feePercent + "%", calc.netFee, calc.ivaAmount, calc.totalFee
+                        ]);
+                    }
+                });
+            });
+
+            rows.push([]);
+            rows.push(["", "", "", "", "", "TOTALE PRESTAZIONI:", "", calculatedNet, calculatedIva, calculatedFeeTotal]);
+            rows.push(["", "", "", "", "", "CONTRIBUTO CUCINA/EXTRA:", "", "", "", kitchenVal]);
+            rows.push(["", "", "", "", "", "TOTALE DA VERSARE:", "", "", "", grandTotal]);
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [{wch: 15}, {wch: 20}, {wch: 25}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 15}];
+            
+            XLSX.utils.book_append_sheet(wb, ws, "Report");
+            const fileName = `Report_Fee_${therapistName.replace(/\s/g,'_')}_${selectedMonth}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function switchStep(step) {
+            document.getElementById('step-upload').classList.add('hidden');
+            document.getElementById('step-wizard').classList.add('hidden');
+            document.getElementById('step-summary').classList.add('hidden');
+            const target = document.getElementById(`step-${step}`);
+            target.classList.remove('hidden');
+            target.classList.add('flex');
+        }
+    </script>
+</body>
+</html>
