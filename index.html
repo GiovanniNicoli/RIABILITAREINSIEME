@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatore Fee Studio - Finale V11</title>
+    <title>Calcolatore Fee Studio Riabilitare insieme</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
@@ -21,6 +21,12 @@
         }
 
         .logo-container img { max-height: 100%; width: auto; }
+        
+        .summary-col { background: white; border-radius: 0.5rem; overflow: hidden; border: 1px solid #e2e8f0; }
+        .summary-header { font-weight: bold; font-size: 0.75rem; text-transform: uppercase; padding: 0.75rem; border-bottom: 2px solid #e2e8f0; }
+        .summary-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 0.5rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem; color: #475569; }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-tot-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 0.5rem; padding: 0.75rem; font-size: 0.85rem; font-weight: bold; background: #f8fafc; border-top: 2px solid #e2e8f0; }
     </style>
 </head>
 <body class="text-gray-800 h-screen flex flex-col overflow-hidden">
@@ -28,15 +34,13 @@
     <div class="bg-white border-b border-gray-200 p-4 z-20">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
-                
                 <div class="h-12 w-12 flex items-center justify-center logo-container">
                     <img src="./logo.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                     <div class="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center text-[8px] font-bold text-gray-500 border-2 border-white shadow hidden">LOGO</div>
                 </div>
-
                 <div>
                     <h1 class="text-xl font-bold text-gray-900 tracking-tight">STUDIO RIABILITARE INSIEME</h1>
-                    <p class="text-xs text-gray-500 font-medium" id="header-therapist">Inserimento prestazioni</p>
+                    <p class="text-xs text-gray-500 font-medium" id="header-therapist">Configurazione Mensile</p>
                 </div>
             </div>
             <button onclick="location.reload()" class="text-sm font-medium text-gray-400 hover:text-red-500 transition">
@@ -46,23 +50,20 @@
     </div>
 
     <div class="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-8">
-        <div class="max-w-6xl mx-auto min-h-full flex flex-col">
+        <div class="max-w-7xl mx-auto min-h-full flex flex-col">
             
             <div id="step-upload" class="flex-1 flex flex-col items-center justify-center fade-in">
                 <div class="bg-white p-10 rounded-2xl shadow-xl text-center max-w-lg w-full border border-gray-100">
-                    
                     <div class="mb-6 bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto text-blue-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Nuovo Report Mensile</h2>
 
                     <div class="mb-8 text-left">
                         <label class="block text-sm font-bold text-gray-700 mb-2">1. Seleziona il Mese di Riferimento</label>
-                        <input type="month" id="month-input" 
-                            class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition cursor-pointer">
+                        <input type="month" id="month-input" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition cursor-pointer">
                     </div>
 
                     <div class="text-left mb-8">
@@ -76,7 +77,6 @@
                     </div>
 
                     <div class="pt-6 border-t border-gray-100 text-left">
-                        
                         <p class="text-xs text-gray-500 mb-4 leading-relaxed whitespace-pre-line border-l-4 border-blue-200 pl-3">
                             <span class="font-bold text-blue-600">SCARICA IL TEMPLATE.</span> 
                             Inserisci il tuo nome e il nome dei pazienti. 
@@ -84,15 +84,11 @@
                             Puoi aggiungere tutte le prestazioni che vuoi, ricorda di mettere tra le parentesi la percentuale. 
                             Salva il file e caricalo qui sopra per iniziare.
                         </p>
-
                         <button onclick="downloadTemplate()" class="flex items-center justify-center gap-2 w-full sm:w-auto mx-auto text-sm text-blue-600 font-bold hover:text-blue-800 hover:bg-blue-50 px-6 py-3 rounded-lg border border-blue-200 transition shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                             Scarica Modello Excel
                         </button>
                     </div>
-
                 </div>
             </div>
 
@@ -134,49 +130,71 @@
                     Riepilogo Finale <span id="summary-month-display" class="ml-2 text-gray-400 font-normal text-lg"></span>
                 </h2>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full items-start">
                     
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                    <div class="lg:col-span-1 space-y-6 sticky top-0">
+                        
+                        <div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-100">
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Costo Cucina / Extra (€)
+                            </label>
+                            <input type="number" id="kitchen-input" min="0" step="0.01" value="0" 
+                                class="w-full text-right text-xl font-bold text-gray-800 p-2 bg-yellow-50 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                                oninput="updateGrandTotal()" placeholder="0.00">
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-100">
+                            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">Report Sommario</h3>
                             
-                            <div class="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                                <label class="block text-xs font-bold text-yellow-800 uppercase mb-2 flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    Costo Cucina / Extra (€)
-                                </label>
-                                <input type="number" id="kitchen-input" min="0" step="0.01" value="0" 
-                                    class="w-full text-right text-xl font-bold text-gray-800 p-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-                                    oninput="updateGrandTotal()" placeholder="0.00">
-                                <p class="text-[10px] text-yellow-600 mt-1 text-right">Si somma al totale finale</p>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="space-y-3">
+                                    <div class="text-[10px] font-bold text-yellow-800 uppercase border-b border-yellow-200 pb-1 mb-2">Soggetti IVA</div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>TOT</span>
+                                        <span class="font-medium" id="sum-left-imp">€ 0,00</span>
+                                    </div>
+                                    <div class="flex justify-between text-orange-600">
+                                        <span>IVA 22%</span>
+                                        <span class="font-medium" id="sum-left-iva">€ 0,00</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-gray-800 border-t border-gray-100 pt-2 mt-2">
+                                        <span>TOT GEN.</span>
+                                        <span id="sum-left-totgen">€ 0,00</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3 border-l border-gray-100 pl-4">
+                                    <div class="text-[10px] font-bold text-blue-800 uppercase border-b border-blue-200 pb-1 mb-2">Esenti IVA</div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>TOT</span>
+                                        <span class="font-medium" id="sum-right-imp">€ 0,00</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-400">
+                                        <span>IVA 0%</span>
+                                        <span class="font-medium" id="sum-right-iva">€ 0,00</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-gray-800 border-t border-gray-100 pt-2 mt-2">
+                                        <span>TOT GEN +</span>
+                                        <span id="sum-right-totgenb">€ 0,00</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Totale da Versare</h3>
-                            <div class="text-4xl font-extrabold text-blue-600" id="summary-grand-total">€ 0,00</div>
-                            
-                            <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-500">Imponibile Fee:</span>
-                                    <span class="font-bold text-gray-700" id="summary-total-net">€ 0,00</span>
+                            <div class="mt-4 pt-4 border-t border-gray-200 space-y-3 text-sm">
+                                <div class="flex justify-between font-bold text-yellow-600">
+                                    <span>CUCINA</span>
+                                    <span id="sum-cucina">€ 0,00</span>
                                 </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-500">IVA Fee (22%):</span>
-                                    <span class="font-bold text-orange-600" id="summary-total-iva">€ 0,00</span>
-                                </div>
-                                <div class="flex justify-between text-sm pt-2 border-t border-dashed border-gray-200">
-                                    <span class="text-gray-500">Fee Totale (No Cucina):</span>
-                                    <span class="font-bold text-blue-600" id="summary-fee-only">€ 0,00</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 pt-4 border-t border-gray-100">
-                                <div class="flex justify-between text-xs text-gray-400">
-                                    <span>Fatturato Tot. Pazienti:</span>
-                                    <span id="summary-total-billed">€ 0,00</span>
+                                
+                                <div class="flex justify-between font-extrabold text-blue-600 text-lg border-t border-gray-200 pt-3 mt-3 bg-blue-50 p-2 rounded-lg shadow-inner">
+                                    <span class="text-sm self-center">TOTALE FINALE</span>
+                                    <span id="sum-final">€ 0,00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 text-sm text-blue-800">
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                             <button onclick="downloadExcel()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex justify-center items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 Scarica Report Excel
@@ -187,12 +205,64 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden">
-                        <div class="p-4 bg-gray-50 border-b border-gray-200 font-bold text-gray-700 text-sm uppercase tracking-wide flex justify-between">
-                            <span>Dettaglio Pazienti</span>
-                            <span>Totale</span>
+                    <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <div class="summary-col shadow-md">
+                            <div class="summary-header bg-yellow-100 text-yellow-800">Prestazioni (Soggette IVA 22%)</div>
+                            <div class="summary-row font-bold bg-gray-50" style="border-bottom: 2px solid #e2e8f0;">
+                                <span>Paziente</span>
+                                <span class="text-center">Sedute</span>
+                                <span class="text-right">Costo/h</span>
+                                <span class="text-right">Cifra Studio</span>
+                            </div>
+                            <div id="list-left" class="max-h-96 overflow-y-auto"></div>
+                            
+                            <div class="summary-tot-row">
+                                <span class="text-right">TOT</span>
+                                <span class="text-center">-</span>
+                                <span class="text-right">TOT</span>
+                                <span class="text-right" id="html-left-imp">€ 0,00</span>
+                            </div>
+                            <div class="summary-tot-row" style="border-top: none; background: white;">
+                                <span></span>
+                                <span class="text-right text-orange-500 col-span-2">IVA 22%</span>
+                                <span class="text-right text-orange-600" id="html-left-iva">€ 0,00</span>
+                            </div>
+                            <div class="summary-tot-row bg-yellow-50" style="border-top: none;">
+                                <span></span>
+                                <span class="text-right text-yellow-800 col-span-2">TOT GEN.</span>
+                                <span class="text-right text-yellow-800" id="html-left-totgen">€ 0,00</span>
+                            </div>
                         </div>
-                        <div class="overflow-y-auto flex-1 p-2" id="summary-list"></div>
+
+                        <div class="summary-col shadow-md">
+                            <div class="summary-header bg-blue-100 text-blue-800">Prestazioni + (Esenti IVA 0%)</div>
+                            <div class="summary-row font-bold bg-gray-50" style="border-bottom: 2px solid #e2e8f0;">
+                                <span>Paziente</span>
+                                <span class="text-center">Sedute</span>
+                                <span class="text-right">Costo/h</span>
+                                <span class="text-right">Cifra Studio</span>
+                            </div>
+                            <div id="list-right" class="max-h-96 overflow-y-auto"></div>
+                            
+                            <div class="summary-tot-row">
+                                <span class="text-right">TOT</span>
+                                <span class="text-center">-</span>
+                                <span class="text-right">TOT</span>
+                                <span class="text-right" id="html-right-imp">€ 0,00</span>
+                            </div>
+                            <div class="summary-tot-row" style="border-top: none; background: white;">
+                                <span></span>
+                                <span class="text-right text-gray-500 col-span-2">IVA 0%</span>
+                                <span class="text-right text-gray-500" id="html-right-iva">€ 0,00</span>
+                            </div>
+                            <div class="summary-tot-row bg-blue-50" style="border-top: none;">
+                                <span></span>
+                                <span class="text-right text-blue-800 col-span-2">TOT GEN +</span>
+                                <span class="text-right text-blue-800" id="html-right-totgenb">€ 0,00</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -208,28 +278,11 @@
         let therapistName = "";
         let selectedMonth = ""; 
         
-        let calculatedNet = 0;
-        let calculatedIva = 0;
-        let calculatedFeeTotal = 0;
-        let calculatedBilled = 0;
+        let leftImp = 0, leftIva = 0, leftTotGen = 0;
+        let rightImp = 0, rightIva = 0, rightTotGenB = 0;
 
-        // --- TEMPLATE DOWNLOAD ---
         function downloadTemplate() {
-            const headers = [
-                "NOME TERAPISTA", 
-                "PRESTAZIONE (25%)", 
-                "DOMICILIARE (15%)", 
-                "PRESTAZIONE + (25%)", 
-                "DOMICILIARE + (15%)", 
-                "PRESTAZIONE ECC (10%)", 
-                "PRESTAZIONE ECC + (10%)", 
-                "RIDUZIONE (20%)", 
-                "RIDUZIONE + (20%)", 
-                "VALUTAZIONE (25%)", 
-                "VALUTAZIONE DOM (15%)"
-            ];
-            
-            // Dati con "NA" come richiesto
+            const headers = ["NOME TERAPISTA", "PRESTAZIONE (25%)", "DOMICILIARE (15%)", "PRESTAZIONE + (25%)", "DOMICILIARE + (15%)", "PRESTAZIONE ECC (10%)", "PRESTAZIONE ECC + (10%)", "RIDUZIONE (20%)", "RIDUZIONE + (20%)", "VALUTAZIONE (25%)", "VALUTAZIONE DOM (15%)"];
             const rows = [
                 headers,
                 ["PAZIENTE 1", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"],
@@ -238,16 +291,8 @@
             ];
             
             const wsData = XLSX.utils.aoa_to_sheet(rows);
+            wsData['!cols'] = [{wch: 25}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 25}, {wch: 25}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 25}];
 
-            // Larghezza Colonne per leggibilità
-            wsData['!cols'] = [
-                {wch: 25}, // Nome
-                {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, // Prestazioni
-                {wch: 25}, {wch: 25}, {wch: 20}, {wch: 20},
-                {wch: 20}, {wch: 25}
-            ];
-
-            // Foglio 2: Istruzioni
             const instructions = [
                 ["ISTRUZIONI PER LA COMPILAZIONE DEL FILE"],
                 [""],
@@ -265,12 +310,11 @@
                 [""],
                 ["4. LOGICA IVA"],
                 ["   - Le prestazioni con simbolo '+' sono ESENTI IVA nello storno allo studio."],
-                ["   - Le prestazioni SENZA '+' includeranno automaticamente il calcolo dell'IVA del 22%."],
+                ["   - Le prestazioni SENZA '+' includeranno automaticamente il calcolo dell'IVA del 22%."]
             ];
             const wsInstr = XLSX.utils.aoa_to_sheet(instructions);
             wsInstr['!cols'] = [{wch: 100}];
             
-            // Creazione Workbook
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, wsData, "Configurazione");
             XLSX.utils.book_append_sheet(wb, wsInstr, "ISTRUZIONI");
@@ -278,7 +322,6 @@
             XLSX.writeFile(wb, "Template_Studio_Vuoto.xlsx");
         }
 
-        // --- UPLOAD ---
         document.getElementById('upload-input').addEventListener('change', function(e) {
             const monthInput = document.getElementById('month-input');
             if (!monthInput.value) {
@@ -331,7 +374,6 @@
                     if (!serviceMap[c]) continue;
                     const val = row[c];
                     const strVal = String(val).trim().toUpperCase();
-                    // Controllo NA
                     if (strVal === "NA" || strVal === "N/A" || strVal === "") continue;
 
                     const price = parseFloat(val);
@@ -351,13 +393,12 @@
                 }
             }
 
-            if (patientList.length === 0) return alert("Nessun dato valido trovato (Verifica di aver compilato il file Excel correttamente).");
+            if (patientList.length === 0) return alert("Nessun dato valido trovato.");
             currentIndex = 0;
             switchStep('wizard');
             renderPatient();
         }
 
-        // --- WIZARD ---
         function renderPatient() {
             const pName = patientList[currentIndex];
             const services = groupedData[pName];
@@ -374,7 +415,7 @@
                 const isActive = item.qty > 0 ? 'active' : '';
                 const willApplyIVA = !item.serviceName.includes('+');
                 const badgeColor = willApplyIVA ? 'text-orange-600 bg-orange-50' : 'text-blue-600 bg-blue-50';
-                const badgeText = willApplyIVA ? 'REGULAR' : 'PLUS';
+                const badgeText = willApplyIVA ? 'Sogg. IVA 22%' : 'Esente IVA';
 
                 const card = document.createElement('div');
                 card.className = `service-card bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md flex flex-col justify-between h-48 relative overflow-hidden group ${isActive}`;
@@ -391,7 +432,7 @@
                     </div>
                     <div class="mt-2">
                         <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Numero Ore</label>
-                        <input type="number" min="0" step "0.5" class="qty-input w-full bg-gray-50 border border-gray-200 rounded-lg text-2xl font-bold text-gray-800 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-center"
+                        <input type="number" min="0" step="0.5" class="qty-input w-full bg-gray-50 border border-gray-200 rounded-lg text-2xl font-bold text-gray-800 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-center"
                             placeholder="0" value="${item.qty === 0 ? '' : item.qty}" onfocus="this.select()" oninput="updateQty('${pName}', ${idx}, this.value)">
                     </div>
                 `;
@@ -401,11 +442,11 @@
             document.getElementById('btn-prev').disabled = currentIndex === 0;
             const btnNext = document.getElementById('btn-next');
             if (currentIndex === patientList.length - 1) {
-                btnNext.innerHTML = 'Vai al Riepilogo &rarr;';
+                btnNext.innerHTML = 'Vai al Riepilogo &rarr; <span class="text-[10px] font-normal bg-white/20 px-1.5 py-0.5 rounded ml-2">Tasto S</span>';
                 btnNext.className = "px-8 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition transform active:scale-95 flex items-center gap-2";
                 btnNext.onclick = showSummary;
             } else {
-                btnNext.innerHTML = 'Prossimo Paziente &rarr;';
+                btnNext.innerHTML = 'Prossimo Paziente &rarr; <span class="text-[10px] font-normal bg-white/20 px-1.5 py-0.5 rounded ml-2">Tasto S</span>';
                 btnNext.className = "px-8 py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-lg shadow-lg transition transform active:scale-95 flex items-center gap-2";
                 btnNext.onclick = nextPatient;
             }
@@ -423,75 +464,65 @@
         function nextPatient() { if (currentIndex < patientList.length - 1) { currentIndex++; renderPatient(); } }
         function prevPatient() { if (currentIndex > 0) { currentIndex--; renderPatient(); } }
 
-        // --- CALCULATIONS ---
         function calculateFeeStructure(serviceItem, billedAmount) {
             let netFee = billedAmount * (serviceItem.feePercent / 100);
-            let ivaAmount = 0;
-            if (!serviceItem.serviceName.includes('+')) {
-                ivaAmount = netFee * 0.22;
-            }
-            let totalFee = netFee + ivaAmount;
-            return { netFee, ivaAmount, totalFee, hasIva: ivaAmount > 0 };
+            return netFee;
         }
 
-        // --- SUMMARY & KITCHEN ---
         function showSummary() {
-            calculatedNet = 0;
-            calculatedIva = 0;
-            calculatedFeeTotal = 0;
-            calculatedBilled = 0;
-            
-            const summaryList = document.getElementById('summary-list');
-            summaryList.innerHTML = "";
+            leftImp = 0; rightImp = 0;
+            const listLeft = document.getElementById('list-left');
+            const listRight = document.getElementById('list-right');
+            listLeft.innerHTML = "";
+            listRight.innerHTML = "";
 
             patientList.forEach(pName => {
-                const services = groupedData[pName];
-                let pFee = 0;
-                let hasData = false;
-                let detailHtml = "";
-
-                services.forEach(s => {
+                groupedData[pName].forEach(s => {
                     if (s.qty > 0) {
                         const billed = s.qty * s.price;
-                        const calc = calculateFeeStructure(s, billed);
+                        const netFee = calculateFeeStructure(s, billed);
                         
-                        pFee += calc.totalFee;
-                        calculatedNet += calc.netFee;
-                        calculatedIva += calc.ivaAmount;
-                        calculatedFeeTotal += calc.totalFee;
-                        calculatedBilled += billed;
-                        hasData = true;
+                        const rowHtml = `
+                            <div class="summary-row hover:bg-gray-50">
+                                <span class="truncate" title="${pName} - ${s.serviceName}">${pName} <span class="text-[9px] text-gray-400 block">${s.serviceName}</span></span>
+                                <span class="text-center font-medium">${s.qty}</span>
+                                <span class="text-right">€${s.price.toFixed(2)}</span>
+                                <span class="text-right font-bold text-gray-700">€${netFee.toFixed(2)}</span>
+                            </div>
+                        `;
 
-                        detailHtml += `
-                        <div class="grid grid-cols-12 gap-2 text-xs text-gray-500 py-1 border-l-2 border-gray-100 pl-4 mt-1">
-                            <div class="col-span-5 truncate font-medium">${s.qty}x ${s.serviceName}</div>
-                            <div class="col-span-2 text-right">Imp: €${calc.netFee.toFixed(2)}</div>
-                            <div class="col-span-2 text-right text-orange-500">${calc.hasIva ? '€'+calc.ivaAmount.toFixed(2) : '-'}</div>
-                            <div class="col-span-3 text-right font-bold text-gray-700">€${calc.totalFee.toFixed(2)}</div>
-                        </div>`;
+                        if (s.serviceName.includes('+')) {
+                            rightImp += netFee;
+                            listRight.innerHTML += rowHtml;
+                        } else {
+                            leftImp += netFee;
+                            listLeft.innerHTML += rowHtml;
+                        }
                     }
                 });
-
-                if (hasData) {
-                    const row = document.createElement('div');
-                    row.className = "p-4 border-b border-gray-100 hover:bg-gray-50 transition";
-                    row.innerHTML = `
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-gray-800 text-lg">${pName}</span>
-                            <span class="font-mono font-bold text-blue-600 text-lg">€${pFee.toFixed(2)}</span>
-                        </div>
-                        <div class="bg-gray-50 p-2 rounded">${detailHtml}</div>
-                    `;
-                    summaryList.appendChild(row);
-                }
             });
 
-            if (calculatedFeeTotal === 0) summaryList.innerHTML = `<div class="p-8 text-center text-gray-400">Nessuna prestazione inserita.</div>`;
+            leftIva = leftImp * 0.22;
+            leftTotGen = leftImp + leftIva;
+            rightIva = 0;
+            rightTotGenB = rightImp + rightIva;
 
-            document.getElementById('summary-total-net').textContent = `€ ${calculatedNet.toFixed(2)}`;
-            document.getElementById('summary-total-iva').textContent = `€ ${calculatedIva.toFixed(2)}`;
-            document.getElementById('summary-fee-only').textContent = `€ ${calculatedFeeTotal.toFixed(2)}`;
-            document.getElementById('summary-total-billed').textContent = `€ ${calculatedBilled.toFixed(2)}`;
+            // Aggiorna tabella in fondo alle due colonne principali
+            document.getElementById('html-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
+            document.getElementById('html-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
+            document.getElementById('html-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
+
+            document.getElementById('html-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
+            document.getElementById('html-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
+            document.getElementById('html-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
+
+            // Aggiorna il report sommario compatto diviso a sinistra
+            document.getElementById('sum-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
+            document.getElementById('sum-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
+            document.getElementById('sum-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
+            document.getElementById('sum-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
+            document.getElementById('sum-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
+            document.getElementById('sum-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
 
             updateGrandTotal();
             switchStep('summary');
@@ -501,43 +532,98 @@
             const kitchenInput = document.getElementById('kitchen-input');
             const kitchenVal = parseFloat(kitchenInput.value);
             const validKitchen = isNaN(kitchenVal) ? 0 : kitchenVal;
-            const grandTotal = calculatedFeeTotal + validKitchen;
-            document.getElementById('summary-grand-total').textContent = `€ ${grandTotal.toFixed(2)}`;
+            
+            const grandTotal = leftTotGen + rightTotGenB + validKitchen;
+            
+            document.getElementById('sum-cucina').textContent = `€ ${validKitchen.toFixed(2)}`;
+            document.getElementById('sum-final').textContent = `€ ${grandTotal.toFixed(2)}`;
         }
 
         function backToWizard() { switchStep('wizard'); renderPatient(); }
 
-        // --- EXPORT ---
         function downloadExcel() {
             const kitchenVal = parseFloat(document.getElementById('kitchen-input').value) || 0;
-            const grandTotal = calculatedFeeTotal + kitchenVal;
 
-            const rows = [];
-            rows.push(["MESE DI RIFERIMENTO:", selectedMonth, "", "", "", "", "", "", "", ""]);
-            rows.push([]);
-            
-            rows.push(["Terapista", "Paziente", "Prestazione", "N. Prestazioni", "Costo Unitario", "Fatturato Paziente", "Fee %", "Imponibile Fee", "IVA Fee (22%)", "Totale Parziale"]);
+            const leftRows = []; 
+            const rightRows = []; 
 
             patientList.forEach(pName => {
                 groupedData[pName].forEach(s => {
                     if (s.qty > 0) {
                         const billed = s.qty * s.price;
-                        const calc = calculateFeeStructure(s, billed);
-                        rows.push([
-                            therapistName, pName, s.serviceName, s.qty, s.price, billed, s.feePercent + "%", calc.netFee, calc.ivaAmount, calc.totalFee
-                        ]);
+                        const netFee = calculateFeeStructure(s, billed);
+                        if (s.serviceName.includes('+')) {
+                            rightRows.push([pName, s.qty, s.price, netFee]);
+                        } else {
+                            leftRows.push([pName, s.qty, s.price, netFee]);
+                        }
                     }
                 });
             });
 
-            rows.push([]);
-            rows.push(["", "", "", "", "", "TOTALE PRESTAZIONI:", "", calculatedNet, calculatedIva, calculatedFeeTotal]);
-            rows.push(["", "", "", "", "", "CONTRIBUTO CUCINA/EXTRA:", "", "", "", kitchenVal]);
-            rows.push(["", "", "", "", "", "TOTALE DA VERSARE:", "", "", "", grandTotal]);
+            const maxRows = Math.max(leftRows.length, rightRows.length);
+            const reportRows = [];
+            
+            reportRows.push(["MESE DI RIFERIMENTO", "NOME TERAPISTA", "", "", "", "", "", ""]);
+            reportRows.push([selectedMonth, therapistName, "", "", "", "", "", ""]);
+            reportRows.push(["COGNOME E NOME DEL PAZIENTE", "N° SEDUTE", "COSTO ORARIO", "CIFRA STUDIO", "COGNOME E NOME DEL PAZIENTE", "N° SEDUTE", "COSTO ORARIO", "CIFRA STUDIO"]);
+
+            const dataStartIndex = 3;
+
+            for (let i = 0; i < maxRows; i++) {
+                const left = leftRows[i] || ["", "", "", ""];
+                const right = rightRows[i] || ["", "", "", ""];
+                reportRows.push([...left, ...right]);
+            }
+
+            const grandTotalUnified = leftTotGen + rightTotGenB + kitchenVal;
+
+            // Spaziature prima dei totali
+            reportRows.push(["", "", "", "", "", "", "", ""]);
+            reportRows.push(["", "", "", "", "", "", "", ""]);
+
+            const totalsRowIndexStart = reportRows.length;
+
+            reportRows.push(["TOT", "", "TOT", leftImp, "TOT", "", "TOT", rightImp]);
+            reportRows.push(["", "", "IVA 22%", leftIva, "", "", "IVA 0%", rightIva]);
+            reportRows.push(["", "", "TOT GEN.", leftTotGen, "", "", "TOT GENB", rightTotGenB]);
+            reportRows.push(["CUCINA", "", "", kitchenVal, "", "", "", ""]);
+            reportRows.push(["TOT GEN + TOT GENB + CUCINA", "", "", grandTotalUnified, "", "", "", ""]);
 
             const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            ws['!cols'] = [{wch: 15}, {wch: 20}, {wch: 25}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 15}];
+            const ws = XLSX.utils.aoa_to_sheet(reportRows);
+
+            const borderStyle = {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            };
+
+            for (let cellAddress in ws) {
+                if (cellAddress[0] === '!') continue; 
+                
+                const cell = ws[cellAddress];
+                const decodedAddress = XLSX.utils.decode_cell(cellAddress);
+                const r = decodedAddress.r;
+                
+                cell.s = { border: borderStyle, font: { bold: false }, alignment: { vertical: "center" } };
+
+                if (r === 0 || r === 2) {
+                    cell.s.font.bold = true;
+                    cell.s.fill = { fgColor: { rgb: "F2F2F2" } }; 
+                }
+                
+                if (r >= totalsRowIndexStart) {
+                    cell.s.font.bold = true;
+                    cell.s.fill = { fgColor: { rgb: "FFF2CC" } }; 
+                }
+            }
+
+            ws['!cols'] = [
+                {wch: 35}, {wch: 15}, {wch: 15}, {wch: 15}, 
+                {wch: 35}, {wch: 15}, {wch: 15}, {wch: 15}
+            ];
             
             XLSX.utils.book_append_sheet(wb, ws, "Report");
             const fileName = `Report_Fee_${therapistName.replace(/\s/g,'_')}_${selectedMonth}.xlsx`;
@@ -552,6 +638,19 @@
             target.classList.remove('hidden');
             target.classList.add('flex');
         }
+
+        // --- ASCOLTATORE TASTIERA PER SCORCIATOIA 'S' ---
+        document.addEventListener('keydown', function(e) {
+            const stepWizard = document.getElementById('step-wizard');
+            // Verifica se il pannello wizard è attualmente visibile
+            if (!stepWizard.classList.contains('hidden')) {
+                if (e.key.toLowerCase() === 's') {
+                    e.preventDefault(); // Previene l'inserimento della lettera 's' se l'utente è in un campo di testo
+                    document.getElementById('btn-next').click();
+                }
+            }
+        });
+
     </script>
 </body>
 </html>
