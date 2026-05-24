@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatore Fee Studio - V24 Spese Extra Casella N</title>
+    <title>Calcolatore Fee Studio - V25 Calcolo Integrato Extra e IVA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
@@ -26,7 +26,7 @@
         .summary-header { font-weight: bold; font-size: 0.75rem; text-transform: uppercase; padding: 0.75rem; border-bottom: 2px solid #e2e8f0; }
         .summary-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 0.5rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem; color: #475569; }
         .summary-row:last-child { border-bottom: none; }
-        .summary-tot-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 0.5rem; padding: 0.75rem; font-size: 0.85rem; font-weight: bold; background: #f8fafc; border-top: 2px solid #e2e8f0; }
+        .summary-tot-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 0.5rem; padding: 0.75rem; font-size: 0.85rem; font-weight: bold; background: #f8fafc; border-top: 1px solid #e2e8f0; }
     </style>
 </head>
 <body class="text-gray-800 h-screen flex flex-col overflow-hidden">
@@ -80,7 +80,7 @@
                         <p class="text-xs text-gray-500 mb-4 leading-relaxed whitespace-pre-line border-l-4 border-blue-200 pl-3">
                             <span class="font-bold text-blue-600">COME FUNZIONA.</span> 
                             Per iniziare un nuovo mese, scarica il Modello Vuoto, compila i dati e caricalo qui sopra. 
-                            Se vuoi riprendere e modificare un calcolo già fatto, ti basta caricare direttamente il Resoconto Excel che avevi scaricato l'ultima volta!
+                            Se vuoi riprendere e modificare un calcolo già fatto, ti basta caricare direttamente il Resoconto Excel che avevi scaricato l'ultima volta.
                         </p>
                         <button onclick="downloadTemplate()" class="flex items-center justify-center gap-2 w-full sm:w-auto mx-auto text-sm text-blue-600 font-bold hover:text-blue-800 hover:bg-blue-50 px-6 py-3 rounded-lg border border-blue-200 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -151,7 +151,7 @@
                                 <div class="space-y-3">
                                     <div class="text-[10px] font-bold text-yellow-800 uppercase border-b border-yellow-200 pb-1 mb-2">Soggetti IVA</div>
                                     <div class="flex justify-between text-gray-600">
-                                        <span>TOT</span>
+                                        <span>TOT IMPONIBILE</span>
                                         <span class="font-medium" id="sum-left-imp">€ 0,00</span>
                                     </div>
                                     <div class="flex justify-between text-orange-600">
@@ -167,7 +167,7 @@
                                 <div class="space-y-3 border-l border-gray-100 pl-4">
                                     <div class="text-[10px] font-bold text-blue-800 uppercase border-b border-blue-200 pb-1 mb-2">Esenti IVA</div>
                                     <div class="flex justify-between text-gray-600">
-                                        <span>TOT</span>
+                                        <span>TOT IMPONIBILE</span>
                                         <span class="font-medium" id="sum-right-imp">€ 0,00</span>
                                     </div>
                                     <div class="flex justify-between text-gray-400">
@@ -180,11 +180,8 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm" id="sum-extras-list">
-                                </div>
                             
-                            <div class="flex justify-between font-extrabold text-blue-600 text-lg border-t border-gray-200 pt-3 mt-3 bg-blue-50 p-2 rounded-lg shadow-inner">
+                            <div class="flex justify-between font-extrabold text-blue-600 text-lg border-t border-gray-200 pt-3 mt-4 bg-blue-50 p-2 rounded-lg shadow-inner">
                                 <span class="text-sm self-center">TOTALE FINALE</span>
                                 <span id="sum-final">€ 0,00</span>
                             </div>
@@ -204,7 +201,7 @@
                     <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         
                         <div class="summary-col shadow-md">
-                            <div class="summary-header bg-yellow-100 text-yellow-800">Prestazioni (Soggette IVA 22%)</div>
+                            <div class="summary-header bg-yellow-100 text-yellow-800">Soggetti IVA 22%</div>
                             <div class="summary-row font-bold bg-gray-50" style="border-bottom: 2px solid #e2e8f0;">
                                 <span>Paziente</span>
                                 <span class="text-center">Sedute</span>
@@ -213,11 +210,20 @@
                             </div>
                             <div id="list-left" class="max-h-96 overflow-y-auto"></div>
                             
-                            <div class="summary-tot-row">
-                                <span class="text-right">TOT</span>
-                                <span class="text-center">-</span>
-                                <span class="text-right">TOT</span>
-                                <span class="text-right" id="html-left-imp">€ 0,00</span>
+                            <div class="summary-tot-row border-t-2 border-gray-200 bg-gray-50">
+                                <span class="text-right">TOT PRESTAZIONI</span>
+                                <span class="text-center"></span>
+                                <span class="text-right"></span>
+                                <span class="text-right" id="html-left-services-tot">€ 0,00</span>
+                            </div>
+
+                            <div id="list-left-extras"></div>
+                            
+                            <div class="summary-tot-row border-t-2 border-gray-300">
+                                <span class="text-right font-bold text-gray-800">TOT IMPONIBILE</span>
+                                <span class="text-center"></span>
+                                <span class="text-right"></span>
+                                <span class="text-right font-bold text-gray-800" id="html-left-imp">€ 0,00</span>
                             </div>
                             <div class="summary-tot-row" style="border-top: none; background: white;">
                                 <span></span>
@@ -232,7 +238,7 @@
                         </div>
 
                         <div class="summary-col shadow-md">
-                            <div class="summary-header bg-blue-100 text-blue-800">Prestazioni N (Esenti IVA 0%)</div>
+                            <div class="summary-header bg-blue-100 text-blue-800">Esenti IVA 0% (N)</div>
                             <div class="summary-row font-bold bg-gray-50" style="border-bottom: 2px solid #e2e8f0;">
                                 <span>Paziente</span>
                                 <span class="text-center">Sedute</span>
@@ -241,11 +247,20 @@
                             </div>
                             <div id="list-right" class="max-h-96 overflow-y-auto"></div>
                             
-                            <div class="summary-tot-row">
-                                <span class="text-right">TOT</span>
-                                <span class="text-center">-</span>
-                                <span class="text-right">TOT</span>
-                                <span class="text-right" id="html-right-imp">€ 0,00</span>
+                            <div class="summary-tot-row border-t-2 border-gray-200 bg-gray-50">
+                                <span class="text-right">TOT PRESTAZIONI</span>
+                                <span class="text-center"></span>
+                                <span class="text-right"></span>
+                                <span class="text-right" id="html-right-services-tot">€ 0,00</span>
+                            </div>
+
+                            <div id="list-right-extras"></div>
+
+                            <div class="summary-tot-row border-t-2 border-gray-300">
+                                <span class="text-right font-bold text-gray-800">TOT IMPONIBILE</span>
+                                <span class="text-center"></span>
+                                <span class="text-right"></span>
+                                <span class="text-right font-bold text-gray-800" id="html-right-imp">€ 0,00</span>
                             </div>
                             <div class="summary-tot-row" style="border-top: none; background: white;">
                                 <span></span>
@@ -275,8 +290,11 @@
         let selectedMonth = ""; 
         let extras = [{ name: "CUCINA", amount: 0, iva: true }];
         
-        let leftImp = 0, leftIva = 0, leftTotGen = 0;
-        let rightImp = 0, rightIva = 0, rightTotGenB = 0;
+        let leftServicesImp = 0, rightServicesImp = 0;
+        let leftExtrasImp = 0, rightExtrasImp = 0;
+        let leftImp = 0, rightImp = 0;
+        let leftIva = 0, rightIva = 0;
+        let leftTotGen = 0, rightTotGenB = 0;
 
         function downloadTemplate() {
             const headers = ["NOME TERAPISTA", "PRESTAZIONE N (25%)", "DOMICILIARE N (15%)", "PRESTAZIONE ECC N (10%)", "RIDUZIONE N (20%)", "PRESTAZIONE (25%)", "DOMICILIARE (15%)", "PRESTAZIONE ECC (10%)", "RIDUZIONE (20%)", "VALUTAZIONE (25%)", "VALUTAZIONE DOM (15%)"];
@@ -470,7 +488,7 @@
                     <div class="mt-2">
                         <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Numero Ore</label>
                         <input type="number" min="0" step="0.5" class="qty-input w-full bg-gray-50 border border-gray-200 rounded-lg text-2xl font-bold text-gray-800 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-center"
-                            placeholder="0" value="${item.qty === 0 ? '' : item.qty}" onfocus="this.select()" oninput="updateQty('${pName}', ${idx}, this.value)">
+                            placeholder="0" value="${item.qty === 0 ? '' : item.qty}" onfocus="this.select()" oninput="updateQty(${idx}, this.value)">
                     </div>
                 `;
                 grid.appendChild(card);
@@ -489,7 +507,8 @@
             }
         }
 
-        function updateQty(pName, idx, val) {
+        function updateQty(idx, val) {
+            const pName = patientList[currentIndex];
             const qty = parseFloat(val);
             const validQty = isNaN(qty) ? 0 : qty;
             groupedData[pName][idx].qty = validQty;
@@ -523,7 +542,7 @@
                         <div class="flex gap-2 items-center">
                             <input type="number" min="0" step="0.01" value="${ex.amount === 0 ? '' : ex.amount}" oninput="updateExtraAmount(${idx}, this.value)" class="flex-1 p-2 text-right text-sm font-bold text-gray-800 bg-yellow-50 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none" placeholder="0.00">
                             
-                            <label class="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-sm">
+                            <label class="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-sm" title="Segna come Esente IVA (Aggiunge in colonna di destra)">
                                 <input type="checkbox" ${checkedAttr} onchange="updateExtraIva(${idx}, !this.checked)" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
                                 <span class="text-[11px] font-bold text-gray-700">N</span>
                             </label>
@@ -531,7 +550,7 @@
                     </div>
                 `;
             });
-            updateGrandTotal();
+            updateSummaryView();
         }
 
         function addExtra() {
@@ -549,22 +568,113 @@
 
         function updateExtraName(idx, val) {
             extras[idx].name = val;
-            updateGrandTotal();
+            updateSummaryView();
         }
 
         function updateExtraAmount(idx, val) {
             const num = parseFloat(val);
             extras[idx].amount = isNaN(num) ? 0 : num;
-            updateGrandTotal();
+            updateSummaryView();
         }
 
         function updateExtraIva(idx, val) {
             extras[idx].iva = val;
-            updateGrandTotal();
+            updateSummaryView();
+        }
+
+        function calculateTotals() {
+            leftServicesImp = 0;
+            rightServicesImp = 0;
+
+            patientList.forEach(pName => {
+                groupedData[pName].forEach(s => {
+                    if (s.qty > 0) {
+                        const billed = s.qty * s.price;
+                        const netFee = calculateFeeStructure(s, billed);
+                        if (/\bN\b/.test(s.serviceName)) {
+                            rightServicesImp += netFee;
+                        } else {
+                            leftServicesImp += netFee;
+                        }
+                    }
+                });
+            });
+
+            leftExtrasImp = 0;
+            rightExtrasImp = 0;
+
+            extras.forEach(ex => {
+                const val = parseFloat(ex.amount) || 0;
+                if (!ex.iva) {
+                    rightExtrasImp += val;
+                } else {
+                    leftExtrasImp += val;
+                }
+            });
+
+            leftImp = leftServicesImp + leftExtrasImp;
+            rightImp = rightServicesImp + rightExtrasImp;
+
+            leftIva = leftImp * 0.22;
+            rightIva = 0;
+
+            leftTotGen = leftImp + leftIva;
+            rightTotGenB = rightImp + rightIva;
+        }
+
+        function updateSummaryView() {
+            calculateTotals();
+
+            // Aggiorna report sommario laterale
+            document.getElementById('sum-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
+            document.getElementById('sum-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
+            document.getElementById('sum-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
+
+            document.getElementById('sum-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
+            document.getElementById('sum-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
+            document.getElementById('sum-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
+
+            document.getElementById('sum-final').textContent = `€ ${(leftTotGen + rightTotGenB).toFixed(2)}`;
+
+            // Aggiorna visualizzazione dettagliata colonne prestazioni
+            document.getElementById('html-left-services-tot').textContent = `€ ${leftServicesImp.toFixed(2)}`;
+            document.getElementById('html-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
+            document.getElementById('html-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
+            document.getElementById('html-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
+
+            document.getElementById('html-right-services-tot').textContent = `€ ${rightServicesImp.toFixed(2)}`;
+            document.getElementById('html-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
+            document.getElementById('html-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
+            document.getElementById('html-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
+
+            // Disegna Extra in tabella a schermo
+            const listLeftExtras = document.getElementById('list-left-extras');
+            const listRightExtras = document.getElementById('list-right-extras');
+            listLeftExtras.innerHTML = "";
+            listRightExtras.innerHTML = "";
+
+            extras.forEach(ex => {
+                const val = parseFloat(ex.amount) || 0;
+                if (val > 0 || (ex.name && ex.name.trim() !== "")) {
+                    const rowHtml = `
+                        <div class="summary-row bg-white italic border-b border-dashed border-gray-200">
+                            <span class="uppercase text-gray-500">${ex.name || 'EXTRA'}</span>
+                            <span class="text-center"></span>
+                            <span class="text-right"></span>
+                            <span class="text-right font-bold text-gray-600">€${val.toFixed(2)}</span>
+                        </div>
+                    `;
+                    if (!ex.iva) {
+                        listRightExtras.innerHTML += rowHtml;
+                    } else {
+                        listLeftExtras.innerHTML += rowHtml;
+                    }
+                }
+            });
         }
 
         function showSummary() {
-            leftImp = 0; rightImp = 0;
+            // Disegna liste pazienti
             const listLeft = document.getElementById('list-left');
             const listRight = document.getElementById('list-right');
             listLeft.innerHTML = "";
@@ -586,77 +696,22 @@
                         `;
 
                         if (/\bN\b/.test(s.serviceName)) {
-                            rightImp += netFee;
                             listRight.innerHTML += rowHtml;
                         } else {
-                            leftImp += netFee;
                             listLeft.innerHTML += rowHtml;
                         }
                     }
                 });
             });
 
-            leftIva = leftImp * 0.22;
-            leftTotGen = leftImp + leftIva;
-            rightIva = 0;
-            rightTotGenB = rightImp + rightIva;
-
-            document.getElementById('html-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
-            document.getElementById('html-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
-            document.getElementById('html-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
-
-            document.getElementById('html-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
-            document.getElementById('html-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
-            document.getElementById('html-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
-
-            document.getElementById('sum-left-imp').textContent = `€ ${leftImp.toFixed(2)}`;
-            document.getElementById('sum-right-imp').textContent = `€ ${rightImp.toFixed(2)}`;
-            document.getElementById('sum-left-iva').textContent = `€ ${leftIva.toFixed(2)}`;
-            document.getElementById('sum-right-iva').textContent = `€ ${rightIva.toFixed(2)}`;
-            document.getElementById('sum-left-totgen').textContent = `€ ${leftTotGen.toFixed(2)}`;
-            document.getElementById('sum-right-totgenb').textContent = `€ ${rightTotGenB.toFixed(2)}`;
-
-            renderExtras();
+            renderExtras(); // Calcola totali, disegna bottoni e aggiorna viste
             switchStep('summary');
-        }
-
-        function updateGrandTotal() {
-            let totalExtrasValue = 0;
-            const extrasSumContainer = document.getElementById('sum-extras-list');
-            extrasSumContainer.innerHTML = "";
-            
-            let hasExtras = false;
-            extras.forEach(ex => {
-                const val = parseFloat(ex.amount) || 0;
-                const ivaAmount = ex.iva ? val * 0.22 : 0;
-                const totalEx = val + ivaAmount;
-
-                if (val > 0 || (ex.name && ex.name.trim() !== "")) {
-                    hasExtras = true;
-                    totalExtrasValue += totalEx;
-                    
-                    const ivaBadge = ex.iva ? '<span class="text-[9px] text-orange-500 font-normal ml-1">(+ IVA 22%)</span>' : '<span class="text-[9px] text-blue-500 font-normal ml-1">(N)</span>';
-                    
-                    extrasSumContainer.innerHTML += `
-                        <div class="flex justify-between font-bold text-yellow-600 text-xs mt-1 items-center">
-                            <span class="uppercase flex items-center">${ex.name || 'EXTRA'} ${ivaBadge}</span>
-                            <span>€ ${totalEx.toFixed(2)}</span>
-                        </div>
-                    `;
-                }
-            });
-            
-            if(!hasExtras) {
-                extrasSumContainer.innerHTML = `<div class="text-xs text-gray-400 italic">Nessuna spesa extra inserita</div>`;
-            }
-            
-            const grandTotal = leftTotGen + rightTotGenB + totalExtrasValue;
-            document.getElementById('sum-final').textContent = `€ ${grandTotal.toFixed(2)}`;
         }
 
         function backToWizard() { switchStep('wizard'); renderPatient(); }
 
         function downloadExcel() {
+            calculateTotals();
             const leftRows = []; 
             const rightRows = []; 
 
@@ -681,37 +736,48 @@
             reportRows.push([selectedMonth, therapistName, "", "", "", "", "", ""]);
             reportRows.push(["COGNOME E NOME DEL PAZIENTE", "N° SEDUTE", "COSTO ORARIO", "CIFRA STUDIO", "COGNOME E NOME DEL PAZIENTE", "N° SEDUTE", "COSTO ORARIO", "CIFRA STUDIO"]);
 
-            const dataStartIndex = 3;
-
             for (let i = 0; i < maxRows; i++) {
                 const left = leftRows[i] || ["", "", "", ""];
                 const right = rightRows[i] || ["", "", "", ""];
                 reportRows.push([...left, ...right]);
             }
 
-            reportRows.push(["", "", "", "", "", "", "", ""]);
-            reportRows.push(["", "", "", "", "", "", "", ""]);
-
-            const totalsRowIndexStart = reportRows.length;
-
-            reportRows.push(["TOT", "", "TOT", leftImp, "TOT", "", "TOT", rightImp]);
-            reportRows.push(["", "", "IVA 22%", leftIva, "", "", "IVA 0%", rightIva]);
-            reportRows.push(["", "", "TOT GEN.", leftTotGen, "", "", "TOT GENB", rightTotGenB]);
+            // Aggiungi riga di Totale parziale prestazioni
+            reportRows.push(["TOT PRESTAZIONI", "", "", leftServicesImp, "TOT PRESTAZIONI", "", "", rightServicesImp]);
             
-            let totalExtrasValue = 0;
+            // Riga spaziatrice prima degli extra
+            reportRows.push(["", "", "", "", "", "", "", ""]);
+
+            // Prepara array extra per allinearli sinistra/destra
+            const leftExtraRows = [];
+            const rightExtraRows = [];
             extras.forEach(ex => {
                 const val = parseFloat(ex.amount) || 0;
                 if(val > 0 || (ex.name && ex.name.trim() !== "")) {
-                    const ivaAmount = ex.iva ? val * 0.22 : 0;
-                    const totalEx = val + ivaAmount;
-                    totalExtrasValue += totalEx;
-                    
-                    const ivaLabel = ex.iva ? "IVA 22%" : "N";
-                    reportRows.push([(ex.name || "EXTRA").toUpperCase(), ivaLabel, "", totalEx, "", "", "", ""]);
+                    const name = (ex.name || "EXTRA").toUpperCase();
+                    if (!ex.iva) rightExtraRows.push([name, "", "", val]);
+                    else leftExtraRows.push([name, "", "", val]);
                 }
             });
 
-            const grandTotalUnified = leftTotGen + rightTotGenB + totalExtrasValue;
+            const maxExtraRows = Math.max(leftExtraRows.length, rightExtraRows.length);
+            for (let i = 0; i < maxExtraRows; i++) {
+                const left = leftExtraRows[i] || ["", "", "", ""];
+                const right = rightExtraRows[i] || ["", "", "", ""];
+                reportRows.push([...left, ...right]);
+            }
+
+            // Spaziature prima dei totali finali
+            reportRows.push(["", "", "", "", "", "", "", ""]);
+            
+            // Indice inizio area calcoli finali per colorazione
+            const totalsRowIndexStart = reportRows.length;
+
+            reportRows.push(["TOT IMPONIBILE", "", "", leftImp, "TOT IMPONIBILE", "", "", rightImp]);
+            reportRows.push(["", "", "IVA 22%", leftIva, "", "", "IVA 0%", rightIva]);
+            reportRows.push(["", "", "TOT GEN.", leftTotGen, "", "", "TOT GENB", rightTotGenB]);
+            
+            const grandTotalUnified = leftTotGen + rightTotGenB;
             reportRows.push(["TOTALE FINALE", "", "", grandTotalUnified, "", "", "", ""]);
 
             const wb = XLSX.utils.book_new();
@@ -723,6 +789,8 @@
                 right: { style: "thin", color: { rgb: "000000" } }
             };
 
+            const totPrestazioniRowIndex = 3 + maxRows;
+
             for (let cellAddress in ws) {
                 if (cellAddress[0] === '!') continue; 
                 
@@ -732,11 +800,19 @@
                 
                 cell.s = { border: borderStyle, font: { bold: false }, alignment: { vertical: "center" } };
 
+                // Header in alto
                 if (r === 0 || r === 2) {
                     cell.s.font.bold = true;
                     cell.s.fill = { fgColor: { rgb: "F2F2F2" } }; 
                 }
                 
+                // Riga Totale Prestazioni Intermedia
+                if (r === totPrestazioniRowIndex) {
+                    cell.s.font.bold = true;
+                    cell.s.fill = { fgColor: { rgb: "E2EFDA" } };
+                }
+
+                // Blocco totali finali
                 if (r >= totalsRowIndexStart) {
                     cell.s.font.bold = true;
                     cell.s.fill = { fgColor: { rgb: "FFF2CC" } }; 
